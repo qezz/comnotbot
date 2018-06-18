@@ -1,0 +1,12 @@
+[package]
+name = "comnotbot"
+version = "0.1.0"
+authors = ["Sergey Mishin <sergei.a.mishin@gmail.com>"]
+
+[dependencies]
+futures-await = "0.1"
+futures-retry = "0.1"
+proc-macro2 = "=0.4.6"
+telegram-bot = { git = "https://github.com/telegram-rs/telegram-bot.git", rev = "a2db637", features = ["curl_connector"] }
+tokio-core = "0.1"
+
