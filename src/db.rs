@@ -5,7 +5,7 @@ use lmdb;
 /// DbInstance is per chat db
 pub struct ChatDb {
     // chat_id: i64,
-    chat_id: tg::MessageChat,
+    chat_id: tg::ChatId,
     current_unique_id: u64,
 
     env: lmdb::Environment,
@@ -13,14 +13,15 @@ pub struct ChatDb {
 }
 
 impl ChatDb {
-    pub fn new(chat_id: tg::types::MessageChat) -> ChatDb {
-        let env = lmdb::EnvBuilder::new().open(format!("chat_{:?}", chat_id), 0o777)
+    pub fn new(msg_chat: tg::types::MessageChat) -> ChatDb {
+        let id = msg_chat.id();
+        let env = lmdb::EnvBuilder::new().open(format!("chat_{:?}", id), 0o777)
                                    .unwrap();
 
         let db_handle = env.get_default_db(lmdb::DbFlags::empty()).unwrap();
 
         ChatDb {
-            chat_id: chat_id,
+            chat_id: id,
             current_unique_id: 0,
             env: env,
             db_handle: db_handle,
