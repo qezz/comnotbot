@@ -9,4 +9,9 @@ futures-retry = "0.1"
 proc-macro2 = "=0.4.6"
 telegram-bot = { git = "https://github.com/telegram-rs/telegram-bot.git", rev = "a2db637", features = ["curl_connector"] }
 tokio-core = "0.1"
+bincode = "1.0.1"
 
+serde = "1.0.66"
+serde_derive = "1.0.66"
+
+lmdb-rs = "0.7.6"
