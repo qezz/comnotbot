@@ -1,12 +1,5 @@
 use std::collections::HashMap;
 
-use futures::prelude::*;
-use futures_retry::{RetryPolicy, StreamRetryExt};
-
-use tokio_core::reactor::Core;
-use telegram_bot::{Api, Error as TelegramError};
-use telegram_bot::{MessageChat, UpdateKind};
-
 use errors::*;
 use db::ChatDb;
 
@@ -22,8 +15,6 @@ pub struct Bot {
 
 impl Bot {
     pub fn new(token: &str) -> BotResult<Bot> {
-        let core = Core::new()?;
-        let api = Api::configure(token).build(core.handle())?;
         Ok(Bot {
             api: api,
             core: core,

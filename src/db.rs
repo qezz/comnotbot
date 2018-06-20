@@ -1,5 +1,3 @@
-use telegram_bot as tg;
-// use bincode;
 use lmdb;
 
 /// DbInstance is per chat db

@@ -2,8 +2,6 @@ use std::fmt;
 use std::{error::Error, io::Error as IoError};
 
 // use telegram_bot::prelude::*;
-use telegram_bot::{Error as TelegramError};
-
 
 #[derive(Debug)]
 pub struct BotError {
