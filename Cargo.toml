@@ -13,7 +13,8 @@ proc-macro2 = "=0.4.6"
 tokio-core = "0.1"
 bincode = "1.0.1"
 
-teleborg = "0.1.32"
+# teleborg = "0.1.32"
+teleborg = { git = "https://github.com/qezz/teleborg.git", rev = "d2482e9" }
 # config = "0.8"
 config = { git = "https://github.com/mehcode/config-rs.git", rev = "e8fa9fe" }
 

@@ -7,6 +7,7 @@ use std::env;
 
 #[macro_use]
 extern crate serde_derive;
+extern crate serde_json;
 extern crate bincode;
 extern crate lmdb_rs as lmdb;
 
@@ -33,6 +34,6 @@ fn main() {
 
 // Our first command handler
 fn test(bot: &Bot, update: Update, _: Option<Vec<&str>>) {
-    println!("update: {:?}", update);
+    println!("update: {:?}", serde_json::to_string(&update));
     bot.reply_to_message(&update, "It works!").unwrap();
 }
