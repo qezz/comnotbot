@@ -42,6 +42,8 @@ fn handle_updates(api: Api) -> Result<(), TelegramError> {
     let mut chat_cache: ChatCache = HashMap::new();
     #[async]
     for update in api.stream().retry(handle_update_error) {
+        // let raw: RawUpdate = Deserialize::deserialize(deserializer)?;
+        // println!();
         match update.kind {
             UpdateKind::Message(message)=> {
                 println!("{:?}", message);
