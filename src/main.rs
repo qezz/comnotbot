@@ -33,6 +33,6 @@ fn main() {
 
 // Our first command handler
 fn test(bot: &Bot, update: Update, _: Option<Vec<&str>>) {
-    println!("it works;");
+    println!("update: {:?}", update);
     bot.reply_to_message(&update, "It works!").unwrap();
 }
