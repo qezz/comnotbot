@@ -1,70 +1,22 @@
-use std::collections::HashMap;
+// use std::collections::HashMap;
 
-use errors::*;
-use db::ChatDb;
+// use errors::*;
+// use db::ChatDb;
 
-pub type BotResult<T> = Result<T, BotError>;
+// pub type BotResult<T> = Result<T, BotError>;
 
-type ChatCache = HashMap<MessageChat, ChatDb>;
+// type ChatCache = HashMap<MessageChat, ChatDb>;
 
 pub struct Bot {
-    api: Api,
-    core: Core,
-    // chat_cache: ChatCache,
+
 }
 
-impl Bot {
-    pub fn new(token: &str) -> BotResult<Bot> {
-        Ok(Bot {
-            api: api,
-            core: core,
-            // chat_cache: HashMap::new(),
-        })
-    }
+// impl Bot {
+//     pub fn new(token: &str) -> BotResult<Bot> {
+//     }
 
-    pub fn run(mut self) -> BotResult<()> {
-        self.core.run(handle_updates(self.api))?;
-        Ok(())
-    }
-}
-
-#[async]
-fn handle_updates(api: Api) -> Result<(), TelegramError> {
-    let mut chat_cache: ChatCache = HashMap::new();
-    #[async]
-    for update in api.stream().retry(handle_update_error) {
-        // let raw: RawUpdate = Deserialize::deserialize(deserializer)?;
-        // println!();
-        match update.kind {
-            UpdateKind::Message(message)=> {
-                println!("{:?}", message);
-                let msg_chat = message.chat.clone();
-
-                // match chat_cache.entry(msg_chat) {
-                //     Vacant(o) => {
-                //         o.insert(db::new(msg_chat));
-                //     },
-                //     _ => {},
-                // }
-
-                // match chat_cache.entry(msg_chat) {
-                //     Occupied(o) => {
-                //         o.insert(db::new(msg_chat));
-                //     },
-                //     _ => {},
-                // }
-                let chat_db = chat_cache.entry(msg_chat.clone()).or_insert(ChatDb::new(msg_chat));
-                (*chat_db).append_raw(&format!("{:?}", message));
-            },
-            _ => { /* skip */ },
-        }
-    }
-
-    Ok(())
-}
-
-fn handle_update_error(error: TelegramError) -> RetryPolicy<TelegramError> {
-    println!("An error has occurred while getting update: {:?}", error);
-    println!("Retrying");
-    RetryPolicy::Repeat
-}
+//     pub fn run(mut self) -> BotResult<()> {
+//         self.core.run(handle_updates(self.api))?;
+//         Ok(())
+//     }
+// }

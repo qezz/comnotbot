@@ -12,8 +12,9 @@ extern crate serde_json;
 
 extern crate teleborg;
 
-// mod bot;
+pub mod bot;
 // mod errors;
-// mod db;
+pub mod db;
 
-// pub use self::bot::{Bot};
+// pub use self::bot;
+pub use self::bot::{Bot};

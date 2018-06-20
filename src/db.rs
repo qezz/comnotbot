@@ -3,7 +3,7 @@ use lmdb;
 /// DbInstance is per chat db
 pub struct ChatDb {
     // chat_id: i64,
-    chat_id: tg::ChatId,
+    chat_id: i64,
     current_unique_id: u64,
 
     env: lmdb::Environment,
@@ -11,8 +11,8 @@ pub struct ChatDb {
 }
 
 impl ChatDb {
-    pub fn new(msg_chat: tg::types::MessageChat) -> ChatDb {
-        let id = msg_chat.id();
+    pub fn new(msg_chat: i64) -> ChatDb {
+        let id = msg_chat;
         let env = lmdb::EnvBuilder::new().open(format!("chat_{:?}", id), 0o777)
                                    .unwrap();
 
@@ -26,13 +26,13 @@ impl ChatDb {
         }
     }
 
-    pub fn append_raw(&mut self, bytes: &str) -> Result<(), ()> {
+    pub fn append_raw(&mut self, bytes: &Vec<u8>) -> Result<(), ()> {
         {
             let txn = self.env.new_transaction().unwrap();
             {
                 let db = txn.bind(&self.db_handle);
 
-                match db.set(&self.current_unique_id, &bytes) {
+                match db.set(&self.current_unique_id, bytes) {
                     Ok(_) => {},
                     Err(_) => return Err(())
                 };
