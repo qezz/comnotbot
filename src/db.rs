@@ -1,15 +1,13 @@
 use lmdb;
-use lmdb::core::{CursorIter, CursorIterator, MdbResult};
 
 /// DbInstance is per chat db
 pub struct ChatDb {
-    // chat_id: i64,
     chat_id: i64,
     current_unique_id: u64,
 
     env: lmdb::Environment,
     db_handle: lmdb::DbHandle,
-    // db: lmdb::Database<'a>,
+    // db: Option<lmdb::Database<'a>>,
 }
 
 impl ChatDb {
@@ -20,15 +18,27 @@ impl ChatDb {
 
         let db_handle = env.get_default_db(lmdb::DbFlags::empty()).unwrap();
 
-        // let reader = env.get_reader().unwrap();
+        // let cdb = ChatDb {
+        //     chat_id: id,
+        //     current_unique_id: 0,
+        //     env: env,
+        //     db_handle: db_handle,
+        //     db: None,
+        // };
+
+        // let reader = {
+        //     cdb.env.get_reader().unwrap();
+        // }
         // let db = reader.bind(&db_handle);
+
+        // cdb;
 
         ChatDb {
             chat_id: id,
             current_unique_id: 0,
             env: env,
             db_handle: db_handle,
-            // db: db,
+            // db: None,
         }
     }
 
@@ -71,10 +81,14 @@ impl ChatDb {
         db.get::<Vec<u8>>(&id).ok()
     }
 
-    pub fn iter(&self) -> MdbResult<CursorIterator<CursorIter>> {
-        let reader = self.env.get_reader().unwrap();
-        let db = reader.bind(&self.db_handle);
-        db.iter().clone()
+    pub fn iter(&self) -> ChatDbIter { // MdbResult<CursorIterator<CursorIter>> {
+        // let reader = self.env.get_reader().unwrap();
+        // let db = reader.bind(&self.db_handle);
+        // self.db.iter()
+        ChatDbIter {
+            chat_db: self,
+            id: 0,
+        }
     }
 
     // pub fn iter(&self) -> ChatDbIter {
@@ -86,9 +100,9 @@ impl ChatDb {
 }
 
 pub struct ChatDbIter<'a> {
-    // chat_db: ChatDb,
+    chat_db: &'a ChatDb,
     // reader: Option<lmdb::ReadonlyTransaction<'a>>,
-    db: lmdb::Database<'a>,
+    // db: Option<lmdb::Database<'a>>,
     id: i64,
 }
 
@@ -96,6 +110,7 @@ impl<'a> Iterator for ChatDbIter<'a> {
     type Item = Vec<u8>;
 
     fn next(&mut self) -> Option<Self::Item> {
+
         // let db = match self.db {
         //     None => {
         //         self.reader = Some(self.chat_db.env.get_reader().unwrap());
@@ -107,8 +122,43 @@ impl<'a> Iterator for ChatDbIter<'a> {
         // let val = db.get::<Vec<u8>>(&self.id);
         // self.id += 1;
         // val.ok()
-        let val = self.db.get::<Vec<u8>>(&self.id);
+
+        // let val = self.db.get::<Vec<u8>>(&self.id);
+        // self.id += 1;
+        // val.ok()
+
+        //
+        // let result = self.chat_db.db.iter();
+
+        //
+        let r = self.chat_db.get(self.id);
+        // let result = match r {
+        //     Ok(v) => Some(v),
+        //     Err(_) => None,
+        // };
         self.id += 1;
-        val.ok()
+
+        r
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    extern crate bincode;
+
+    use super::*;
+
+    #[test]
+    fn iterates() {
+        let mut chat_db = ChatDb::new(1);
+
+        for i in 0..10 {
+            let bin = bincode::serialize::<i32>(&i).unwrap();
+            chat_db.append_raw(&bin).unwrap();
+        }
+
+        for (i, x) in chat_db.iter().enumerate() {
+            assert_eq!(i as i32, bincode::deserialize::<i32>(&x).unwrap());
+        }
     }
 }
