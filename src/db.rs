@@ -18,21 +18,6 @@ impl ChatDb {
 
         let db_handle = env.get_default_db(lmdb::DbFlags::empty()).unwrap();
 
-        // let cdb = ChatDb {
-        //     chat_id: id,
-        //     current_unique_id: 0,
-        //     env: env,
-        //     db_handle: db_handle,
-        //     db: None,
-        // };
-
-        // let reader = {
-        //     cdb.env.get_reader().unwrap();
-        // }
-        // let db = reader.bind(&db_handle);
-
-        // cdb;
-
         ChatDb {
             chat_id: id,
             current_unique_id: 0,
@@ -63,12 +48,6 @@ impl ChatDb {
         Ok(())
     }
 
-    // pub fn append_msg(&self, msg: &tg::Message) -> Result<(), ()> {
-    //     let bytes = bincode::serialize(msg);
-
-    //     self.append_raw(bytes)
-    // }
-
     fn inc(&mut self) -> u64 {
         let cuid = self.current_unique_id;
         self.current_unique_id += 1;
@@ -81,28 +60,16 @@ impl ChatDb {
         db.get::<Vec<u8>>(&id).ok()
     }
 
-    pub fn iter(&self) -> ChatDbIter { // MdbResult<CursorIterator<CursorIter>> {
-        // let reader = self.env.get_reader().unwrap();
-        // let db = reader.bind(&self.db_handle);
-        // self.db.iter()
+    pub fn iter(&self) -> ChatDbIter {
         ChatDbIter {
             chat_db: self,
             id: 0,
         }
     }
-
-    // pub fn iter(&self) -> ChatDbIter {
-    //     ChatDbIter {
-    //         db: self.env.get_reader().and_then(|r| Ok(r.bind(&self.db_handle))).unwrap(),
-    //         id: 0,
-    //     }
-    // }
 }
 
 pub struct ChatDbIter<'a> {
     chat_db: &'a ChatDb,
-    // reader: Option<lmdb::ReadonlyTransaction<'a>>,
-    // db: Option<lmdb::Database<'a>>,
     id: i64,
 }
 
@@ -110,32 +77,10 @@ impl<'a> Iterator for ChatDbIter<'a> {
     type Item = Vec<u8>;
 
     fn next(&mut self) -> Option<Self::Item> {
-
-        // let db = match self.db {
-        //     None => {
-        //         self.reader = Some(self.chat_db.env.get_reader().unwrap());
-        //         Some(&self.reader.unwrap().bind(&self.chat_db.db_handle))
-        //     }
-        //     Some(db) => Some(db),
-        // };
-        // let db = db.unwrap();
-        // let val = db.get::<Vec<u8>>(&self.id);
-        // self.id += 1;
-        // val.ok()
-
-        // let val = self.db.get::<Vec<u8>>(&self.id);
-        // self.id += 1;
-        // val.ok()
-
-        //
-        // let result = self.chat_db.db.iter();
-
-        //
+        // FIXME: ChatDb::get() creates a new transaction on every request.
+        // In future, it may be the performance issue.
         let r = self.chat_db.get(self.id);
-        // let result = match r {
-        //     Ok(v) => Some(v),
-        //     Err(_) => None,
-        // };
+
         self.id += 1;
 
         r

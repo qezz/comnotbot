@@ -43,15 +43,17 @@ fn main() {
 }
 
 // Our first command handler
-fn test(bot: &Bot, update: Update, _: Option<Vec<&str>>) {
-    println!("update: {:?}", serde_json::to_string(&update));
-    println!("update: {}", serde_json::to_string(&update).unwrap());
-    println!("update: {:?}", bincode::serialize(&update));
-    bot.reply_to_message(&update, "It works!").unwrap();
+fn test(_bot: &Bot, update: Update, _: Option<Vec<&str>>) {
+    // println!("update: {:?}", serde_json::to_string(&update));
+    // println!("update: {}", serde_json::to_string(&update).unwrap());
+    // println!("update: {:?}", bincode::serialize(&update));
 
-    let chat_id = (update.message.clone().unwrap().chat.id).clone();
+    let chat_id = update.message.clone().unwrap().chat.id;
     let mut map = CHAT_CACHE.lock().unwrap();
     let chat_db = map .entry(chat_id)
                       .or_insert(ChatDb::new(chat_id));
-    (*chat_db).append_raw(&bincode::serialize(&update).unwrap());
+    let res = (*chat_db).append_raw(&bincode::serialize(&update).unwrap());
+    if let Err(e) = res {
+        println!("Cannot write to db: {:?}", e);
+    }
 }
