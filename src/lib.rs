@@ -5,4 +5,7 @@ extern crate serde_json;
 
 extern crate teleborg;
 
-pub mod db;
+pub mod core;
+
+#[macro_use] extern crate log;
+#[macro_use] extern crate env_logger;

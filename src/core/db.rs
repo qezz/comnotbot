@@ -1,6 +1,7 @@
 use lmdb;
 
-/// DbInstance is per chat db
+/// ChatDb is a per chat database
+#[derive(Debug)]
 pub struct ChatDb {
     chat_id: i64,
     current_unique_id: u64,
@@ -10,21 +11,27 @@ pub struct ChatDb {
     // db: Option<lmdb::Database<'a>>,
 }
 
+// impl PartialEq for ChatDb {
+//     fn eq(&self, other: &Self) -> bool {
+//         self.chat_id == other.chat_id
+//             && self.current_unique_id
+//     }
+// }
+
 impl ChatDb {
-    pub fn new(msg_chat: i64) -> ChatDb {
+    pub fn new(msg_chat: i64) -> Result<ChatDb, lmdb::MdbError> {
         let id = msg_chat;
-        let env = lmdb::EnvBuilder::new().open(format!("chat_{:?}", id), 0o777)
-                                   .unwrap();
+        let env = lmdb::EnvBuilder::new().open(format!("chat_{:?}", id), 0o777)?;
 
         let db_handle = env.get_default_db(lmdb::DbFlags::empty()).unwrap();
 
-        ChatDb {
+        Ok(ChatDb {
             chat_id: id,
             current_unique_id: 0,
             env: env,
             db_handle: db_handle,
             // db: None,
-        }
+        })
     }
 
     pub fn append_raw(&mut self, bytes: &Vec<u8>) -> Result<(), ()> {
@@ -95,7 +102,7 @@ mod tests {
 
     #[test]
     fn iterates() {
-        let mut chat_db = ChatDb::new(1);
+        let mut chat_db = ChatDb::new(1).unwrap();
 
         for i in 0..10 {
             let bin = bincode::serialize::<i32>(&i).unwrap();
