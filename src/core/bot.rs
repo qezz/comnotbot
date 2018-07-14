@@ -55,11 +55,13 @@ impl Bot {
 impl Command for Bot {
     fn execute(&mut self, _bot: &teleborg::Bot, update: Update, _args: Option<Vec<&str>>) {
         debug!("dispatcher: received an update");
-        let chat_id = update.message.clone().unwrap().chat.id;
-        debug!("dispatcher: serializing bytes");
-        let bytes = &bincode::serialize(&update).unwrap();
-        if let Err(e) = self.write_to_chat_with_id(chat_id, bytes) {
-            error!("Error while writing to db: {:?}", e);
+        if let Some(ref m) = update.message {
+            let chat_id = m.chat.id;
+            debug!("dispatcher: serializing bytes");
+            let bytes = &bincode::serialize(&update).unwrap();
+            if let Err(e) = self.write_to_chat_with_id(chat_id, bytes) {
+                error!("Error while writing to db: {:?}", e);
+            }
         }
     }
 }
