@@ -10,3 +10,6 @@ pub mod core;
 #[macro_use] extern crate log;
 // #[macro_use]
 extern crate env_logger;
+
+extern crate failure;
+#[macro_use] extern crate failure_derive;

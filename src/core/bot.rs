@@ -6,6 +6,9 @@ use std::collections::HashMap;
 
 // use core::chat::Chat;
 use core::db::ChatDb;
+use core::errors::{BotError, BotErrorKind};
+
+use failure::{Fail, ResultExt};
 
 use lmdb;
 use bincode;
@@ -23,19 +26,19 @@ impl Bot {
     }
 
     // TODO: Use failure
-    fn write_to_chat_with_id(&mut self, chat_id: i64, bytes: &Vec<u8>) -> Result<(), lmdb::MdbError> {
-        let the_chat = self.find_or_add(chat_id)?;
+    fn write_to_chat_with_id(&mut self, chat_id: i64, bytes: &Vec<u8>) -> Result<(), BotError> { // lmdb::MdbError> {
+        let the_chat = self.find_or_add(chat_id)?; // .context(BotErrorKind::DbError)?;
 
-        // FIXME: Don't use unwrap
         let res = the_chat.append_raw(bytes);
         if let Err(e) = res {
             error!("Cannot write to db: {:?}", e);
+            Err(BotErrorKind::ChatWriteError{id: chat_id})?
         }
 
         Ok(())
     }
 
-    fn find_or_add(&mut self, id: i64) -> Result<&mut ChatDb, lmdb::MdbError> {
+    fn find_or_add(&mut self, id: i64) -> Result<&mut ChatDb, BotError> { // lmdb::MdbError> {
         use std::collections::hash_map::Entry;
 
         match self.chats.entry(id) {
@@ -51,7 +54,9 @@ impl Bot {
 
 impl Command for Bot {
     fn execute(&mut self, _bot: &teleborg::Bot, update: Update, _args: Option<Vec<&str>>) {
+        debug!("dispatcher: received an update");
         let chat_id = update.message.clone().unwrap().chat.id;
+        debug!("dispatcher: serializing bytes");
         let bytes = &bincode::serialize(&update).unwrap();
         if let Err(e) = self.write_to_chat_with_id(chat_id, bytes) {
             error!("Error while writing to db: {:?}", e);

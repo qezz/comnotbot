@@ -1,5 +1,7 @@
 use lmdb;
 
+use core::errors::BotError;
+
 /// ChatDb is a per chat database
 #[derive(Debug)]
 pub struct ChatDb {
@@ -21,9 +23,12 @@ pub struct ChatDb {
 impl ChatDb {
     pub fn new(msg_chat: i64) -> Result<ChatDb, lmdb::MdbError> {
         let id = msg_chat;
+
+        debug!("creating db...");
         let env = lmdb::EnvBuilder::new().open(format!("chat_{:?}", id), 0o777)?;
 
-        let db_handle = env.get_default_db(lmdb::DbFlags::empty()).unwrap();
+        debug!("getting default db...");
+        let db_handle = env.get_default_db(lmdb::DbFlags::empty())?;
 
         Ok(ChatDb {
             chat_id: id,
@@ -34,22 +39,25 @@ impl ChatDb {
         })
     }
 
-    pub fn append_raw(&mut self, bytes: &Vec<u8>) -> Result<(), ()> {
+    pub fn append_raw(&mut self, bytes: &Vec<u8>) -> Result<(), BotError> {
         {
-            let txn = self.env.new_transaction().unwrap();
+            let txn = self.env.new_transaction()?;
             {
                 let db = txn.bind(&self.db_handle);
 
-                match db.set(&self.current_unique_id, bytes) {
-                    Ok(_) => {},
-                    Err(_) => return Err(())
-                };
+                // match db.set(&self.current_unique_id, bytes) {
+                //     Ok(_) => {},
+                //     Err(_) => return Err(())
+                // };
+
+                db.set(&self.current_unique_id, bytes)?;
             }
 
-            match txn.commit() {
-                Ok(_) => {},
-                Err(_) => return Err(())
-            };
+            // match txn.commit() {
+            //     Ok(_) => {},
+            //     Err(_) => return Err(())
+            // };
+            txn.commit()?;
         }
         self.inc();
         Ok(())
