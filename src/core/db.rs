@@ -25,7 +25,7 @@ impl ChatDb {
         let id = msg_chat;
 
         debug!("creating db...");
-        let env = lmdb::EnvBuilder::new().map_size(1024 * 1024 * 1024).open(format!("chat_{:?}", id), 0o777)?;
+        let env = lmdb::EnvBuilder::new().map_size(1024 * 1024 * 1024 * 200).open(format!("chat_{:?}", id), 0o777)?;
 
         debug!("getting default db...");
         let db_handle = env.get_default_db(lmdb::DbFlags::empty())?;
