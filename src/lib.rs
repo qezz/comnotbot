@@ -6,6 +6,7 @@ extern crate serde_json;
 extern crate teleborg;
 
 pub mod core;
+pub mod analytics;
 
 #[macro_use] extern crate log;
 // #[macro_use]
