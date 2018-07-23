@@ -72,6 +72,8 @@ impl From<Context<BotErrorKind>> for BotError {
 
 impl From<lmdb::MdbError> for BotError {
     fn from(kind: lmdb::MdbError) -> BotError {
+        warn!("lmbd error cannot be converted into inner format for now. This should be changed in future.");
+        error!("lmdb error: {:?}", kind);
         BotError {
             inner: Context::new(
                 BotErrorKind::LmdbError // (kind)
